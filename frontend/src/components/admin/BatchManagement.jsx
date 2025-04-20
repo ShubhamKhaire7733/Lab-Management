@@ -81,11 +81,23 @@ const BatchManagement = () => {
       setLoading(true);
       setError(null);
 
+      // Format the data
+      const formattedData = {
+        ...formData,
+        time: formData.time + ':00', // Ensure time has seconds
+        rollNumberStart: parseInt(formData.rollNumberStart),
+        rollNumberEnd: parseInt(formData.rollNumberEnd),
+        startDate: new Date(formData.startDate).toISOString(),
+        endDate: new Date(formData.endDate).toISOString()
+      };
+
       const url = editingBatch 
         ? `http://localhost:3000/api/batches/${editingBatch.id}`
         : 'http://localhost:3000/api/batches';
       
       const method = editingBatch ? 'PUT' : 'POST';
+
+      console.log('Sending batch data:', formattedData); // Debug log
 
       const response = await fetch(url, {
         method,
@@ -93,10 +105,11 @@ const BatchManagement = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${getToken()}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formattedData)
       });
 
       const data = await response.json();
+      console.log('Server response:', data); // Debug log
 
       if (data.success) {
         if (editingBatch) {
@@ -121,9 +134,10 @@ const BatchManagement = () => {
           rollNumberEnd: ''
         });
       } else {
-        throw new Error(data.message);
+        throw new Error(data.message || 'Failed to create batch');
       }
     } catch (error) {
+      console.error('Error details:', error); // Debug log
       setError(`Failed to ${editingBatch ? 'update' : 'create'} batch: ${error.message}`);
     } finally {
       setLoading(false);

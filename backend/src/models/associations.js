@@ -16,7 +16,8 @@ const setupAssociations = () => {
   // User associations
   User.hasOne(Student, {
     foreignKey: 'userId',
-    as: 'student'
+    as: 'student',
+    constraints: false
   });
 
   User.hasOne(Teacher, {
@@ -27,7 +28,8 @@ const setupAssociations = () => {
   // Student associations
   Student.belongsTo(User, {
     foreignKey: 'userId',
-    as: 'user'
+    as: 'user',
+    constraints: false
   });
 
   Student.hasMany(Assignment, {

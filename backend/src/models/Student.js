@@ -14,11 +14,15 @@ const Student = sequelize.define('Student', {
     references: {
       model: 'Users',
       key: 'id'
-    }
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    constraintName: 'student_user_fk'  // Named constraint to avoid conflicts
   },
   rollNumber: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,  // Add unique constraint
     validate: {
       len: [1, 20]
     }
@@ -66,7 +70,13 @@ const Student = sequelize.define('Student', {
   }
 }, {
   timestamps: true,
-  paranoid: true // Enable soft deletes
+  paranoid: true, // Enable soft deletes
+  indexes: [
+    {
+      unique: true,
+      fields: ['rollNumber']
+    }
+  ]
 });
 
 export default Student;

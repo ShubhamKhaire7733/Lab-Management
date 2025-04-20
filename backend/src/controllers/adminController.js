@@ -783,7 +783,11 @@ export const getTeachers = async (req, res) => {
         email: teacherData.email,
         department: teacherData.department,
         phone: teacherData.phone,
-        subjects: teacherData.subjects ? JSON.parse(teacherData.subjects) : []
+        subjects: teacherData.subjects ? 
+          (typeof teacherData.subjects === 'string' ? 
+            JSON.parse(teacherData.subjects) : 
+            teacherData.subjects) : 
+          []
       };
     });
 

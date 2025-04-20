@@ -153,21 +153,6 @@ function TeacherAllocation() {
     setEditingAllocation(null);
   };
 
-  const getTeacherName = (teacherId) => {
-    const teacher = teachers.find(t => t.id === teacherId);
-    return teacher ? teacher.name : 'Unknown Teacher';
-  };
-
-  const getSubjectName = (subjectId) => {
-    const subject = subjects.find(s => s.id === subjectId);
-    return subject ? subject.name : 'Unknown Subject';
-  };
-
-  const getBatchName = (batchId) => {
-    const batch = batches.find(b => b.id === batchId);
-    return batch ? batch.name : 'Unknown Batch';
-  };
-
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -355,13 +340,13 @@ function TeacherAllocation() {
                 allocations.map((allocation) => (
                   <tr key={allocation.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {getTeacherName(allocation.teacherId)}
+                      {allocation.teacher?.name || 'Unknown Teacher'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {getSubjectName(allocation.subjectId)}
+                      {allocation.subject?.name || 'Unknown Subject'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {getBatchName(allocation.batchId)}
+                      {allocation.batch?.name || 'Unknown Batch'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {allocation.division || '-'}

@@ -6,7 +6,7 @@ import Role from '../models/Role.js';
 
 export const register = async (req, res) => {
   try {
-    const { email, password, role, department, phone, subjects } = req.body;
+    const { email, password, role, department, phone, subjects, rollNumber, year, division, name } = req.body;
     
     console.log('Register request received:', { email, role, department, subjects });
 
@@ -55,7 +55,7 @@ export const register = async (req, res) => {
         // Create teacher profile
         const teacher = await Teacher.create({
           userId: user.id,
-          name: email.split('@')[0], // Use email username as initial name
+          name: name || email.split('@')[0], // Use provided name or email username
           email,
           department,
           phone: phone || null,
@@ -75,8 +75,42 @@ export const register = async (req, res) => {
         await user.destroy();
         throw teacherError;
       }
+    } else if (role === 'student') {
+      // Validate student-specific fields
+      if (!rollNumber || !year || !division || !department) {
+        await user.destroy(); // Rollback user creation
+        return res.status(400).json({ 
+          message: 'Roll number, year, division, and department are required for student registration' 
+        });
+      }
+
+      try {
+        // Create student profile
+        const student = await Student.create({
+          userId: user.id,
+          name: name || email.split('@')[0], // Use provided name or email username
+          email,
+          rollNumber,
+          year,
+          division,
+          department
+        });
+
+        console.log('Student profile created successfully:', student.id);
+
+        res.status(201).json({ 
+          message: 'Student registered successfully',
+          userId: user.id,
+          studentId: student.id
+        });
+      } catch (studentError) {
+        console.error('Error creating student profile:', studentError);
+        // If student creation fails, delete the user and return error
+        await user.destroy();
+        throw studentError;
+      }
     } else {
-      // For non-teacher roles, just return success
+      // For other roles (like admin), just return success
       res.status(201).json({ 
         message: 'User registered successfully',
         userId: user.id 
@@ -199,7 +233,7 @@ export const login = async (req, res) => {
         email: user.email,
         role: user.role,
         name: tokenPayload.name,
-        student: user.role === 'student' ? {
+        student: user.role === 'student' && user.student ? {
           id: user.student.id,
           rollNumber: user.student.rollNumber,
           name: user.student.name,
@@ -207,7 +241,7 @@ export const login = async (req, res) => {
           division: user.student.division,
           department: user.student.department
         } : null,
-        teacher: user.role === 'teacher' ? {
+        teacher: user.role === 'teacher' && user.teacher ? {
           id: user.teacher.id,
           name: user.teacher.name,
           department: user.teacher.department
